@@ -14,6 +14,16 @@ import ShareScreen from './src/screens/ShareScreen';
 
 import { ThemeProvider, useTheme } from './src/theme/ThemeContext';
 
+// App.jsx
+// Aquí vive el estado de la sesión y se decide qué pantalla mostrar.
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
+
+import { readToken, saveToken, deleteToken } from './src/auth/session';
+import Login from './src/screens/LoginScreen';
+import Inicio from './src/screens/Inicio';
+
+
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
@@ -62,7 +72,53 @@ function MainStack() {
 }
 
 export default function App() {
+  const [token, setToken] = useState(null);
+  const [loading, setLoading] = useState(true); // true mientras leemos el token guardado
+
+  // Al abrir la app: buscamos si ya había una sesión guardada
+  useEffect(() => {
+    async function loadSession() {
+      const savedToken = await readToken();
+      setToken(savedToken);
+      setLoading(false);
+    }
+    loadSession();
+  }, []);
+
+  // Se llama desde Login cuando el inicio de sesión fue exitoso
+  async function handleLogin(newToken) {
+    await saveToken(newToken);
+    setToken(newToken);
+  }
+
+  // Se llama desde Inicio al pulsar "Cerrar sesión" (o si el token expiró)
+  async function handleLogout() {
+    await deleteToken();
+    setToken(null);
+  }
+
+  // Decidimos qué pantalla mostrar: cargando, sin sesión o con sesión
+  let screen;
+  if (loading) {
+    screen = (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  } else if (!token) {
+    screen = <Login onLogin={handleLogin} />;
+  } else {
+    screen = <Inicio token={token} onLogout={handleLogout} />;
+  }
+
   return (
+    <>
+      {screen}
+      <StatusBar style="auto" />
+    </>
+  );
+
+  /*return (
     <ThemeProvider>
       <NavigationContainer>
         <GestureHandlerRootView style={{ flex: 1 }}>
@@ -75,5 +131,9 @@ export default function App() {
         </GestureHandlerRootView>
       </NavigationContainer>
     </ThemeProvider>
-  );
+  );*/
 }
+
+const styles = StyleSheet.create({
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+});
