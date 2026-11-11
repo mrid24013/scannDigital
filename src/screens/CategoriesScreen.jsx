@@ -1,4 +1,5 @@
 import { ScrollView, StyleSheet, Text, View, Pressable } from 'react-native';
+import { useEffect } from 'react';
 import { useTheme } from '../theme/ThemeContext';
 
 // Las cajas del demo: arreglo estatico, cada objeto es una caja

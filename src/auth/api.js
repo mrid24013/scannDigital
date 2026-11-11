@@ -34,6 +34,25 @@ export async function login(email, password) {
   }
 }
 
+// Crea Usuario y devuelve el token.
+// Lanza un Error si los datos son incorrectos.
+export async function signup(first_name,last_name, email, phone, password, password_confirm) {
+  const response = await fetch(`${BASE_URL}/api/auth/signup/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ first_name,last_name, email, phone, password, password_confirm }),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    // DummyJSON responde 400 con { message: 'Invalid data' }
+    throw new Error(data.message || 'Signup failed');
+  }
+
+  login(email, password);
+}
+
 // Pide los datos del usuario usando el token.
 // Si el token expiró (401), lanza un error con status = 401.
 export async function getProfile(token) {

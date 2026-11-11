@@ -22,54 +22,7 @@ import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { readToken, saveToken, deleteToken } from './src/auth/session';
 import Login from './src/screens/LoginScreen';
 import Inicio from './src/screens/Inicio';
-
-
-const Tab = createBottomTabNavigator();
-const Stack = createNativeStackNavigator();
-
-function tabIcon(name) {
-  return ({ color, size }) => <Ionicons name={name} size={size} color={color} />;
-}
-
-function Tabs() {
-  return (
-    <Tab.Navigator>
-      <Tab.Screen
-        name="Home"
-        component={HomeScreen}
-        options={{ title: "Home", tabBarLabel: 'Home', tabBarIcon: tabIcon("home-outline") }}
-      />
-      <Tab.Screen
-        name="Editar"
-        component={EditScreen}
-        options={{ title: "Editar", tabBarLabel: 'Editar', tabBarIcon: tabIcon("create-outline") }}
-      />
-      <Tab.Screen
-        name="Escanear"
-        component={ScanScreen}
-        options={{ title: "Escanear", tabBarLabel: 'Escanear', tabBarIcon: tabIcon("camera-outline") }}
-      />
-      <Tab.Screen
-        name="Categorias"
-        component={CategoriesScreen}
-        options={{ title: "Categorias", tabBarLabel: 'Categorias', tabBarIcon: tabIcon("albums-outline") }}
-      />
-      <Tab.Screen
-        name="Exportar"
-        component={ShareScreen}
-        options={{ title: "Exportar", tabBarLabel: 'Exportar', tabBarIcon: tabIcon("share-outline") }}
-      />
-    </Tab.Navigator>
-  );
-}
-
-function MainStack() {
-  return (
-    <Stack.Navigator>
-      <Stack.Screen name="Tabs" component={Tabs} options={{ headerShown: false }}/>
-    </Stack.Navigator>
-  );
-}
+import StackNavigator from './src/screens/StackNavigator';
 
 export default function App() {
   const [token, setToken] = useState(null);
@@ -96,7 +49,7 @@ export default function App() {
     await deleteToken();
     setToken(null);
   }
-
+  
   // Decidimos qué pantalla mostrar: cargando, sin sesión o con sesión
   let screen;
   if (loading) {
@@ -108,7 +61,7 @@ export default function App() {
   } else if (!token) {
     screen = <Login onLogin={handleLogin} />;
   } else {
-    screen = <Inicio token={token} onLogout={handleLogout} />;
+    screen = <StackNavigator token={token} onLogout={handleLogout} />;
   }
 
   return (

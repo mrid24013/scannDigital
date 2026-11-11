@@ -26,6 +26,7 @@ export default function Inicio({ token, onLogout }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]); // se vuelve a ejecutar solo si cambia el token
 
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>¡Sesión iniciada!</Text>
