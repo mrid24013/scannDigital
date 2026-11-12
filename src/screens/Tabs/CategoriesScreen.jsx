@@ -1,6 +1,6 @@
 import { ScrollView, StyleSheet, Text, View, Pressable } from 'react-native';
 import { useEffect } from 'react';
-import { useTheme } from '../theme/ThemeContext';
+import { useTheme } from '../../theme/ThemeContext';
 
 // Las cajas del demo: arreglo estatico, cada objeto es una caja
 
@@ -26,12 +26,12 @@ const BOXES = [
     { id:'5', label:'Contenido E', color:'#8b5cf6', style: {} },
 ];
 
-export default function EditScreen() {
+export default function CategoriesScreen() {
     const { theme } = useTheme();
 
     return (
         <View>
-            <Text style={styles.text}>Documentos</Text>
+            <Text style={styles.text}>Categoria 1</Text>
             <ScrollView horizontal style={{ backgroundColor: theme.background }} contentContainerStyle={styles.container}>
             <View style={[styles.playground, { backgroundColor: theme.surface, borderColor: theme.border }]}>
                 {BOXES.map((box) => (
@@ -54,12 +54,15 @@ export default function EditScreen() {
                         ))}
                 </View>
         </ScrollView>
-        <Text style={styles.text}>Categorias</Text>
+        <Text style={styles.text}>Categoria 2</Text>
         <ScrollView horizontal style={{ backgroundColor: theme.background }} contentContainerStyle={styles.container}>
             <View style={[styles.playground, { backgroundColor: theme.surface, borderColor: theme.border }]}>
                 {BOXES.map((box) => (
                             <View key={box.id} style={[styles.box, { backgroundColor: box.color }, box.style]}>
                                 <Text style={styles.boxLabel}>{box.label}</Text>
+                                <Pressable style={styles.button}>
+                                    <Text style={styles.textButton}>Abrir</Text>
+                                </Pressable>
                             </View>
                         ))}
                 </View>
@@ -67,6 +70,9 @@ export default function EditScreen() {
                 {BOXES.map((box) => (
                             <View key={box.id} style={[styles.box, { backgroundColor: box.color }, box.style]}>
                                 <Text style={styles.boxLabel}>{box.label}</Text>
+                                <Pressable style={styles.button}>
+                                    <Text style={styles.textButton}>Abrir</Text>
+                                </Pressable>
                             </View>
                         ))}
                 </View>

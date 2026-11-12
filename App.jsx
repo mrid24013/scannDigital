@@ -6,12 +6,6 @@ import { NavigationContainer } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import HomeScreen from './src/screens/HomeScreen';
-import EditScreen from './src/screens/EditScreen';
-import ScanScreen from './src/screens/ScanScreen';
-import CategoriesScreen from './src/screens/CategoriesScreen';
-import ShareScreen from './src/screens/ShareScreen';
-
 import { ThemeProvider, useTheme } from './src/theme/ThemeContext';
 
 // App.jsx
@@ -20,9 +14,8 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import { readToken, saveToken, deleteToken } from './src/auth/session';
-import Login from './src/screens/LoginScreen';
-import Inicio from './src/screens/Inicio';
-import StackNavigator from './src/screens/StackNavigator';
+import TabsStackNavigator from './src/screens/TabStackNavigator';
+import AuthStackNavigator from './src/screens/AuthStackNavigator';
 
 export default function App() {
   const [token, setToken] = useState(null);
@@ -59,9 +52,9 @@ export default function App() {
       </View>
     );
   } else if (!token) {
-    screen = <Login onLogin={handleLogin} />;
+    screen = <AuthStackNavigator onLogin={handleLogin} />;
   } else {
-    screen = <StackNavigator token={token} onLogout={handleLogout} />;
+    screen = <TabsStackNavigator token={token} onLogout={handleLogout} />;
   }
 
   return (
@@ -70,21 +63,6 @@ export default function App() {
       <StatusBar style="auto" />
     </>
   );
-
-  /*return (
-    <ThemeProvider>
-      <NavigationContainer>
-        <GestureHandlerRootView style={{ flex: 1 }}>
-          <SafeAreaProvider>
-            <SafeAreaView style={{ flex: 1 }}>
-              <StatusBar style="auto" />
-              <MainStack />
-            </SafeAreaView>
-          </SafeAreaProvider>
-        </GestureHandlerRootView>
-      </NavigationContainer>
-    </ThemeProvider>
-  );*/
 }
 
 const styles = StyleSheet.create({

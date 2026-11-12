@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { getProfile } from '../auth/api';
+import { getProfile } from '../../auth/api';
 
 export default function Inicio({ token, onLogout }) {
   const [profile, setProfile] = useState(null);

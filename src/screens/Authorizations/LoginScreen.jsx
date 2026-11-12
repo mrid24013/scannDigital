@@ -12,9 +12,9 @@ import {
 } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 
-import { login } from '../auth/api';
+import { login } from '../../auth/api';
 
-export default function SignUpScreen({ onLogin }) {
+export default function LoginScreen({ onLogin }) {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 

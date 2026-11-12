@@ -6,11 +6,11 @@ import { NavigationContainer } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import HomeScreen from './HomeScreen';
-import EditScreen from './EditScreen';
-import ScanScreen from './ScanScreen';
-import CategoriesScreen from './CategoriesScreen';
-import ShareScreen from './ShareScreen';
+import HomeScreen from './Tabs/HomeScreen';
+import EditScreen from './Tabs/EditScreen';
+import ScanScreen from './Tabs/ScanScreen';
+import CategoriesScreen from './Tabs/CategoriesScreen';
+import ShareScreen from './Tabs/ShareScreen';
 
 import { ThemeProvider, useTheme } from '../theme/ThemeContext';
 
@@ -20,8 +20,7 @@ import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View, Text } from 'react-native';
 
 import { readToken, saveToken, deleteToken } from '../auth/session';
-import Login from './LoginScreen';
-import Inicio from './Inicio';
+import Login from './Authorizations/LoginScreen';
 import { getProfile } from '../auth/api';
 
 const Tab = createBottomTabNavigator();
@@ -117,7 +116,7 @@ function MainStack() {
   );
 }
 
-export default function StackNavigator({ token, onLogout }) {
+export default function TabStackNavigator({ token, onLogout }) {
   const [profile, setProfile] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
   logout = onLogout;

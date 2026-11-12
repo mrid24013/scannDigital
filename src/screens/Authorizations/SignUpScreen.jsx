@@ -12,28 +12,28 @@ import {
 } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 
-import { login } from '../auth/api';
+import { signup } from '../../auth/api';
 
-export default function LoginScreen({ onLogin }) {
+export default function SignUpScreen({ onLogin }) {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
   // react-hook-form maneja los valores y la validación
   const { control, handleSubmit, formState: { errors } } = useForm({
-    defaultValues: { email: '', password: '' },
+    defaultValues: { first_name: '',last_name: '', email: '', phone: '', password: '', password_confirm: ''},
   });
 
   // Solo se ejecuta si los dos campos pasaron la validación
-  async function onSubmit({ email, password }) {
+  async function onSubmit({ first_name,last_name, email, phone, password, password_confirm }) {
     setLoading(true);
     setErrorMessage('');
     try {
-      const token = await login(email, password);
+      const token = await signup(first_name, last_name, email, phone, password, password_confirm);
       await onLogin(token); // App guarda el token y cambia de pantalla
     } catch (error) {
       setErrorMessage(
-        error.message === 'Invalid credentials'
-          ? 'Usuario o contraseña incorrectos'
+        error.message === 'account with this email already exists.'
+          ? 'Correo ya esta en uso.'
           : 'No se pudo conectar. Intenta de nuevo.'
       );
       setLoading(false);
@@ -48,16 +48,54 @@ export default function LoginScreen({ onLogin }) {
         contentContainerStyle={styles.container}
         keyboardShouldPersistTaps="handled"
       >
-        <Text style={styles.title}>Iniciar sesión</Text>
+        <Text style={styles.title}>Crear Usuario</Text>
+
+        <Controller
+          control={control}
+          name="first_name"
+          rules={{ required: 'El nombre es obligatorio' }}
+          render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput
+              style={styles.input}
+              placeholder="Nombre"
+              autoCapitalize="none"
+              autoCorrect={false}
+              keyboardType="default"
+              onChangeText={onChange}
+              onBlur={onBlur}
+              value={value}
+            />
+          )}
+        />
+        {errors.first_name && <Text style={styles.error}>{errors.first_name.message}</Text>}
+
+        <Controller
+          control={control}
+          name="last_name"
+          rules={{ required: 'El apellido es obligatorio' }}
+          render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput
+              style={styles.input}
+              placeholder="Apellido"
+              autoCapitalize="none"
+              autoCorrect={false}
+              keyboardType="default"
+              onChangeText={onChange}
+              onBlur={onBlur}
+              value={value}
+            />
+          )}
+        />
+        {errors.last_name && <Text style={styles.error}>{errors.last_name.message}</Text>}
 
         <Controller
           control={control}
           name="email"
-          rules={{ required: 'El usuario es obligatorio' }}
+          rules={{ required: 'El correo es obligatorio' }}
           render={({ field: { onChange, onBlur, value } }) => (
             <TextInput
               style={styles.input}
-              placeholder="Usuario"
+              placeholder="Correo"
               autoCapitalize="none"
               autoCorrect={false}
               keyboardType="default"
@@ -68,6 +106,25 @@ export default function LoginScreen({ onLogin }) {
           )}
         />
         {errors.email && <Text style={styles.error}>{errors.email.message}</Text>}
+
+        <Controller
+          control={control}
+          name="phone"
+          rules={{ required: 'El telefono es obligatorio' }}
+          render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput
+              style={styles.input}
+              placeholder="Telefono"
+              autoCapitalize="none"
+              autoCorrect={false}
+              keyboardType="default"
+              onChangeText={onChange}
+              onBlur={onBlur}
+              value={value}
+            />
+          )}
+        />
+        {errors.phone && <Text style={styles.error}>{errors.phone.message}</Text>}
 
         <Controller
           control={control}
@@ -86,6 +143,24 @@ export default function LoginScreen({ onLogin }) {
           )}
         />
         {errors.password && <Text style={styles.error}>{errors.password.message}</Text>}
+
+        <Controller
+          control={control}
+          name="password_confirm"
+          rules={{ required: 'La contraseña es obligatoria' }}
+          render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput
+              style={styles.input}
+              placeholder="Confirma Contraseña"
+              autoCapitalize="none"
+              secureTextEntry
+              onChangeText={onChange}
+              onBlur={onBlur}
+              value={value}
+            />
+          )}
+        />
+        {errors.password_confirm && <Text style={styles.error}>{errors.password_confirm.message}</Text>}
 
         {errorMessage !== '' && <Text style={styles.error}>{errorMessage}</Text>}
 

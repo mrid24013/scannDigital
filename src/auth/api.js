@@ -36,7 +36,7 @@ export async function login(email, password) {
 
 // Crea Usuario y devuelve el token.
 // Lanza un Error si los datos son incorrectos.
-export async function signup(first_name,last_name, email, phone, password, password_confirm) {
+export async function signup(first_name, last_name, email, phone, password, password_confirm) {
   const response = await fetch(`${BASE_URL}/api/auth/signup/`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -47,10 +47,11 @@ export async function signup(first_name,last_name, email, phone, password, passw
 
   if (!response.ok) {
     // DummyJSON responde 400 con { message: 'Invalid data' }
-    throw new Error(data.message || 'Signup failed');
+    throw new Error(data.email || 'Signup failed');
   }
 
-  login(email, password);
+  // Inicia sesión y devuelve el token despues de crear usuario.
+  return login(email, password);
 }
 
 // Pide los datos del usuario usando el token.
