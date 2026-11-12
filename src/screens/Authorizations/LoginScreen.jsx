@@ -33,7 +33,7 @@ export default function LoginScreen({ onLogin }) {
     } catch (error) {
       setErrorMessage(
         error.message === 'Invalid credentials'
-          ? 'Usuario o contraseña incorrectos'
+          ? 'Correo o contraseña incorrectos'
           : 'No se pudo conectar. Intenta de nuevo.'
       );
       setLoading(false);
@@ -53,11 +53,11 @@ export default function LoginScreen({ onLogin }) {
         <Controller
           control={control}
           name="email"
-          rules={{ required: 'El usuario es obligatorio' }}
+          rules={{ required: 'El correo es obligatorio' }}
           render={({ field: { onChange, onBlur, value } }) => (
             <TextInput
               style={styles.input}
-              placeholder="Usuario"
+              placeholder="Correo"
               autoCapitalize="none"
               autoCorrect={false}
               keyboardType="default"
