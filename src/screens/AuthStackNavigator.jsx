@@ -65,24 +65,24 @@ function MainStack() {
 
 export default function AuthStackNavigator({ onLogin }) {
     handleLogin = onLogin
-  return (
-    <ThemeProvider>
-      <NavigationContainer>
-        <GestureHandlerRootView style={{ flex: 1 }}>
-          <SafeAreaProvider>
-            <SafeAreaView style={{ flex: 1 }}>
-              <StatusBar style="auto"/>
-              <MainStack />
-            </SafeAreaView>
-          </SafeAreaProvider>
-        </GestureHandlerRootView>
-      </NavigationContainer>
-    </ThemeProvider>
-  );
+    return (
+      <ThemeProvider>
+        <NavigationContainer>
+          <GestureHandlerRootView style={{ flex: 1 }}>
+            <SafeAreaProvider>
+              <SafeAreaView style={{ flex: 1 }}>
+                <StatusBar style="auto"/>
+                <MainStack />
+              </SafeAreaView>
+            </SafeAreaProvider>
+          </GestureHandlerRootView>
+        </NavigationContainer>
+      </ThemeProvider>
+    );
 }
 
 const styles = StyleSheet.create({
-    center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   container: { flex: 1, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', padding: 24, gap: 16 },
   title: { fontSize: 28, fontWeight: 'bold' },
   name: { fontSize: 20 },

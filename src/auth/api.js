@@ -27,11 +27,7 @@ export async function login(email, password) {
     throw new Error(data.message || 'Login failed');
   }
 
-  if (isWeb) {
-    return data.token;
-  } else {
-    return data.accessToken;
-  }
+  return data.token;
 }
 
 // Crea Usuario y devuelve el token.

@@ -172,7 +172,7 @@ export default function SignUpScreen({ onLogin }) {
           {loading ? (
             <ActivityIndicator color="#fff" />
           ) : (
-            <Text style={styles.buttonText}>Entrar</Text>
+            <Text style={styles.buttonText}>Registrar</Text>
           )}
         </Pressable>
       </ScrollView>

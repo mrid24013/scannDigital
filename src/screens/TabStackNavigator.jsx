@@ -55,11 +55,6 @@ function Tabs() {
           title: "Editar", 
           tabBarLabel: 'Editar', 
           tabBarIcon: tabIcon("create-outline"),
-          headerRight: () => (
-            <Pressable style={styles.button} onPress={logout}>
-              <Text style={styles.buttonText}>Cerrar sesión</Text>
-            </Pressable>
-          ),
         }}
       />
       <Tab.Screen
@@ -69,11 +64,6 @@ function Tabs() {
           title: "Escanear", 
           tabBarLabel: 'Escanear', 
           tabBarIcon: tabIcon("camera-outline"),
-          headerRight: () => (
-            <Pressable style={styles.button} onPress={logout}>
-              <Text style={styles.buttonText}>Cerrar sesión</Text>
-            </Pressable>
-          ),
         }}
       />
       <Tab.Screen
@@ -83,11 +73,6 @@ function Tabs() {
           title: "Categorias", 
           tabBarLabel: 'Categorias', 
           tabBarIcon: tabIcon("albums-outline"),
-          headerRight: () => (
-            <Pressable style={styles.button} onPress={logout}>
-              <Text style={styles.buttonText}>Cerrar sesión</Text>
-            </Pressable>
-          ),
         }}
       />
       <Tab.Screen
@@ -97,11 +82,6 @@ function Tabs() {
           title: "Exportar", 
           tabBarLabel: 'Exportar', 
           tabBarIcon: tabIcon("share-outline"),
-          headerRight: () => (
-            <Pressable style={styles.button} onPress={logout}>
-              <Text style={styles.buttonText}>Cerrar sesión</Text>
-            </Pressable>
-          ),
         }}
       />
     </Tab.Navigator>
@@ -157,11 +137,11 @@ export default function TabStackNavigator({ token, onLogout }) {
 }
 
 const styles = StyleSheet.create({
-    center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   container: { flex: 1, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', padding: 24, gap: 16 },
   title: { fontSize: 28, fontWeight: 'bold' },
   name: { fontSize: 20 },
   error: { color: '#c00' },
-  button: { backgroundColor: '#dc2626', borderRadius: 8, paddingVertical: 14, paddingHorizontal: 28 },
+  button: { backgroundColor: '#dc2626', borderRadius: 8, paddingVertical: 5, paddingHorizontal: 5 },
   buttonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
 });

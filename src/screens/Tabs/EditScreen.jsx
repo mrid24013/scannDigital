@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
     //Contenedor: las propiedades de aqui repartes a los hijos
     playground: {
         height: 'auto', //Altura fija para que justifyContent tenga espacio que repartir tambien en column
-        borderWidth: 'auto',
+        borderWidth: StyleSheet.hairlineWidth,
         borderRadius: 12,
         padding: 8,
 
