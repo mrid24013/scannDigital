@@ -24,7 +24,7 @@ export async function login(email, password) {
 
   if (!response.ok) {
     // DummyJSON responde 400 con { message: 'Invalid credentials' }
-    throw new Error(data.message || 'Login failed');
+    throw new Error(data.email || 'Login failed');
   }
 
   return data.token;

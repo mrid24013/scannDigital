@@ -32,7 +32,7 @@ export default function LoginScreen({ onLogin }) {
       await onLogin(token); // App guarda el token y cambia de pantalla
     } catch (error) {
       setErrorMessage(
-        error.message === 'Invalid credentials'
+        error.message === 'Correo o contraseña incorrectos.' || 'Enter a valid email address.'
           ? 'Correo o contraseña incorrectos'
           : 'No se pudo conectar. Intenta de nuevo.'
       );
