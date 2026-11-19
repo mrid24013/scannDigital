@@ -1,97 +1,39 @@
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
-import { Ionicons } from '@expo/vector-icons';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { useEffect, useState } from 'react';
+
+import { ThemeProvider, useTheme } from '../theme/ThemeContext';
+import { getProfile } from '../api/auth/authorization';
 
 import HomeScreen from './Tabs/HomeScreen';
 import EditScreen from './Tabs/EditScreen';
-import ScanScreen from './Tabs/ScanScreen';
+import ScanScreen from './Tabs/ScanScreens/ScanScreen';
 import CategoriesScreen from './Tabs/CategoriesScreen';
 import ShareScreen from './Tabs/ShareScreen';
+import PhotoScreen from './Tabs/ScanScreens/photo';
 
-import { ThemeProvider, useTheme } from '../theme/ThemeContext';
+import Tabs from '../components/Tabs';
 
-// App.jsx
-// Aquí vive el estado de la sesión y se decide qué pantalla mostrar.
-import { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, View, Text } from 'react-native';
-
-import { readToken, saveToken, deleteToken } from '../auth/session';
-import Login from './Authorizations/LoginScreen';
-import { getProfile } from '../auth/api';
-
-const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
+const screens = [
+  {name: "Home", component: HomeScreen, icon: "home-outline"},
+  {name: "Editar", component: EditScreen, icon: "create-outline"},
+  {name: "Escanear", component: ScanScreen, icon: "camera-outline"},
+  {name: "Categorias", component: CategoriesScreen, icon: "albums-outline"},
+  {name: "Exportar", component: ShareScreen, icon: "share-outline"},
+];
 var logout = null;
-
-function tabIcon(name) {
-  return ({ color, size }) => <Ionicons name={name} size={size} color={color} />;
-}
-
-function Tabs() {
-  return (
-    <Tab.Navigator>
-      <Tab.Screen
-        name="Home"
-        component={HomeScreen}
-        options={{ 
-          title: "Home", 
-          tabBarLabel: 'Home', 
-          tabBarIcon: tabIcon("home-outline"), 
-          headerRight: () => (
-            <Pressable style={styles.button} onPress={logout}>
-              <Text style={styles.buttonText}>Cerrar sesión</Text>
-            </Pressable>
-          ), 
-        }}
-      />
-      <Tab.Screen
-        name="Editar"
-        component={EditScreen}
-        options={{ 
-          title: "Editar", 
-          tabBarLabel: 'Editar', 
-          tabBarIcon: tabIcon("create-outline"),
-        }}
-      />
-      <Tab.Screen
-        name="Escanear"
-        component={ScanScreen}
-        options={{ 
-          title: "Escanear", 
-          tabBarLabel: 'Escanear', 
-          tabBarIcon: tabIcon("camera-outline"),
-        }}
-      />
-      <Tab.Screen
-        name="Categorias"
-        component={CategoriesScreen}
-        options={{ 
-          title: "Categorias", 
-          tabBarLabel: 'Categorias', 
-          tabBarIcon: tabIcon("albums-outline"),
-        }}
-      />
-      <Tab.Screen
-        name="Exportar"
-        component={ShareScreen}
-        options={{ 
-          title: "Exportar", 
-          tabBarLabel: 'Exportar', 
-          tabBarIcon: tabIcon("share-outline"),
-        }}
-      />
-    </Tab.Navigator>
-  );
-}
 
 function MainStack() {
   return (
     <Stack.Navigator>
-      <Stack.Screen name="Tabs" component={Tabs} options={{ headerShown: false }}/>
+      <Stack.Screen name="Tabs" options={{ headerShown: false }}>
+        {(props) => <Tabs {...props} screens={screens} onAction={logout} />}
+      </Stack.Screen>
+      <Stack.Screen name="Photo" component={PhotoScreen} options={{ headerShown: false }} />
     </Stack.Navigator>
   );
 }
@@ -135,13 +77,3 @@ export default function TabStackNavigator({ token, onLogout }) {
     </ThemeProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  container: { flex: 1, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', padding: 24, gap: 16 },
-  title: { fontSize: 28, fontWeight: 'bold' },
-  name: { fontSize: 20 },
-  error: { color: '#c00' },
-  button: { backgroundColor: '#dc2626', borderRadius: 8, paddingVertical: 5, paddingHorizontal: 5 },
-  buttonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
-});

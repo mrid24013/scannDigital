@@ -1,19 +1,10 @@
 import { StatusBar } from 'expo-status-bar';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { NavigationContainer } from '@react-navigation/native';
-import { Ionicons } from '@expo/vector-icons';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-
-import { ThemeProvider, useTheme } from './src/theme/ThemeContext';
-
 // App.jsx
 // Aquí vive el estado de la sesión y se decide qué pantalla mostrar.
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
-import { readToken, saveToken, deleteToken } from './src/auth/session';
+import { readToken, saveToken, deleteToken } from './src/api/auth/session';
 import TabsStackNavigator from './src/screens/TabStackNavigator';
 import AuthStackNavigator from './src/screens/AuthStackNavigator';
 

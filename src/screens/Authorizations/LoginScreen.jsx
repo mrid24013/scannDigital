@@ -3,7 +3,6 @@ import { useState } from 'react';
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
-  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -12,7 +11,7 @@ import {
 } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 
-import { login } from '../../auth/api';
+import { login } from '../../api/auth/authorization';
 
 export default function LoginScreen({ onLogin }) {
   const [loading, setLoading] = useState(false);

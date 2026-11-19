@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 
-import { signup } from '../../auth/api';
+import { signup } from '../../api/auth/authorization';
 
 export default function SignUpScreen({ onLogin }) {
   const [loading, setLoading] = useState(false);

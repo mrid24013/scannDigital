@@ -1,10 +1,8 @@
-// sesion.js
 // Guarda, lee y borra el token de la sesión.
 // El resto de la app NO sabe si se usa SecureStore o AsyncStorage.
 import { Platform } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useState } from 'react';
 
 const TOKEN_KEY = 'token';
 

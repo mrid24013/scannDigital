@@ -1,20 +1,14 @@
-import { Platform } from 'react-native';
-// api.js
-// Llamadas al servidor (API pública DummyJSON).
-//const BASE_URL = 'https://dummyjson.com';
+// Llamadas al servidor.
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL;
-const SERIAL_NUMBER = process.env.EXPO_PUBLIC_SERIAL_NUMBER;
+const authBaseURL = `${BASE_URL}/api/auth/`;
 
 // Minutos que dura el token. Cámbialo (ej. 1) para demostrar la expiración.
 export const EXPIRES_IN_MINS = 3;
 
-// accessToken no funciona en la web, así que allí usamos token
-const isWeb = Platform.OS === 'web';
-
 // Inicia sesión y devuelve el token.
 // Lanza un Error si las credenciales son incorrectas.
 export async function login(email, password) {
-  const response = await fetch(`${BASE_URL}/api/auth/login/`, {
+  const response = await fetch(`${authBaseURL}/login/`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password, EXPIRES_IN_MINS }),
@@ -33,7 +27,7 @@ export async function login(email, password) {
 // Crea Usuario y devuelve el token.
 // Lanza un Error si los datos son incorrectos.
 export async function signup(first_name, last_name, email, phone, password, password_confirm) {
-  const response = await fetch(`${BASE_URL}/api/auth/signup/`, {
+  const response = await fetch(`${authBaseURL}/signup/`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ first_name,last_name, email, phone, password, password_confirm }),
@@ -53,7 +47,7 @@ export async function signup(first_name, last_name, email, phone, password, pass
 // Pide los datos del usuario usando el token.
 // Si el token expiró (401), lanza un error con status = 401.
 export async function getProfile(token) {
-  const response = await fetch(`${BASE_URL}/api/auth/get-profile/`, {
+  const response = await fetch(`${authBaseURL}/get-profile/`, {
     headers: { Authorization: `Bearer ${token}` },
   });
 
