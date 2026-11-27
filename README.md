@@ -16,18 +16,18 @@ Escanea tus documentos en la palma de tu mano.
 * EXPO_PUBLIC_API_URL=<SERVIDOR>
 * EXPO_PUBLIC_OCR_KEY=<CLAVE>
 
-##Instalacion y Ejecucion
--- Clonado del proyecto github
-git clone <URL_DEL_REPOSITORIO>
-cd scannerdigital
-npm install
+## Instalacion y Ejecucion
+### Clonado del proyecto github
+* git clone <URL_DEL_REPOSITORIO>
+* cd scannerdigital
+* npm install
 
--- Verificacion de las dependencias
-npx expo install expo-camera
+### Verificacion de las dependencias
+* npx expo install expo-camera
 
--- Iniciar el proyecto
-npx expo start
+### Iniciar el proyecto
+* npx expo start
 
---- Pruebas en dispositivos moviles
+### Pruebas en dispositivos moviles
 * Verificacion Web: Expo Go - QR
 * Verificacion Nativa: npx expo run:android
