@@ -1,129 +1,229 @@
-import { File } from 'expo-file-system';
-import { useState } from 'react';
-import { ActivityIndicator, Alert, Image, Pressable, StyleSheet, Text, View } from 'react-native';
-
-import { postImage, deleteImage } from '../../../api/api';
+import { useEffect, useState } from 'react';
+import {
+  Alert,
+  KeyboardAvoidingView,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
+import { downloadAndOpenPdf, loadCategories, uploadPdfDocument } from '../../../api/api';
 import { previewUri } from '../../../data/data';
+import { convertTextToPdf, extractTextFromImage } from '../../../data/documentScanner';
 
-export default function PhotoScreen({ route, navigation }) {
-  const { screen, uri, mode, id } = route.params || {};
-  const [uploading, setUploading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+export default function PhotoScreen({ route, navigation, token }) {
+  const { screen, uri, mode, id, title: initialTitle } = route.params || {};
   const isEditMode = mode === 'edit';
   const isViewMode = mode === 'view';
-  const prevUri = previewUri(uri);
-  const handleUpload = async () => {
-    if (!prevUri) return;
-    setUploading(true);
+  const isScanMode = !isEditMode && !isViewMode;
+  const photoUri = previewUri(uri);
+
+  const [busy, setBusy] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [docTitle, setDocTitle] = useState( initialTitle );
+  const [extractedText, setExtractedText] = useState('');
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+
+  // Al recibir la foto desde la cámara: extraer texto localmente (OCR) y cargar categorías
+  useEffect(() => {
+    if (!isScanMode || !photoUri) return;
+    async function processCapturedPhoto() {
+      setBusy(true);
+      setErrorMessage('');
+
+      try {
+        const [categories, text] = await Promise.all([
+          token ? loadCategories(token).catch(() => []) : Promise.resolve([]),
+          extractTextFromImage(photoUri),
+        ]);
+
+        setCategories(categories);
+        setExtractedText(text);
+
+        if (!text) {
+          setErrorMessage('No se encontro texto en la foto.');
+        }
+      } catch (error) {
+        setErrorMessage(error.message || 'Error al extraer el texto.');
+      }
+      setBusy(false);
+    }
+
+    processCapturedPhoto();
+  }, [isScanMode, photoUri, token]);
+
+  // Convierte el texto extraído a PDF local y sube ÚNICAMENTE el PDF a PythonAnywhere
+  const handleGenerateAndUploadPdf = async () => {
+    if (!extractedText.trim() || busy) return;
+
+    setBusy(true);
     setErrorMessage('');
 
     try {
-      // Crear instancia de File compatible con FormData y fetch en Expo
-      const file = new File(prevUri);
-      const formData = new FormData();
-      formData.append('image', file);
+      const finalTitle = docTitle.trim();
+      const pdfUri = await convertTextToPdf(extractedText, finalTitle);
 
-      postImage(formData);
-      navigation.navigate('Tabs', { screen: screen });
+      await uploadPdfDocument(token, {
+        pdfUri,
+        title: finalTitle,
+        categoryId: selectedCategory,
+      });
+
+      navigation.navigate('Tabs', { screen: screen || 'Home' });
     } catch (error) {
-        setErrorMessage(
-          error.message === 'Error del servidor' || 'Enter a valid email address.'
-            ? 'Error del servidor'
-            : 'No se pudo conectar. Intenta de nuevo.'
-        );
+      setErrorMessage(error.message || 'Error al subir al servidor.');
     }
-    setUploading(false);
+    setBusy(false);
   };
-  const handleDelete = async () => {
-    if (!id) return;
-    setUploading(true);
 
+  const handleOpenServerPdf = async () => {
+    if (!id || busy) return;
+    setBusy(true);
     try {
-      deleteImage(id);
-      navigation.goBack();
+      await downloadAndOpenPdf(token, id, `${docTitle || `documento_${id}`}.pdf`);
     } catch (error) {
-      Alert.alert('Error', 'No se pudo eliminar la foto del servidor.');
+      Alert.alert('Error', error.message || 'No se pudo abrir el PDF.');
     }
-    setUploading(false);
+    setBusy(false);
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}/>
-      <Image source={{ uri: prevUri }} style={styles.image} resizeMode="contain"/>
-      {errorMessage !== '' && <Text style={styles.error}>{errorMessage}</Text>}
-      <View style={styles.actions}>
-        {!isEditMode ? (
+    <KeyboardAvoidingView
+      style={styles.container}
+    >
+      {isScanMode ? (
+        <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
           <>
-            {!isViewMode ? (
-              <>
-                <Pressable
-                  style={[styles.primary, (uploading || !prevUri) && styles.disabled]}
-                  onPress={handleUpload}
-                  disabled={uploading || !prevUri}
-                >
-                  {uploading ? (
-                    <ActivityIndicator color="#fff" />
-                  ) : (
-                    <Text style={styles.primaryText}>Guardar</Text>
-                  )}
-                </Pressable>
-              </>
-            ) : (null)}
-          </>
-        ) : (
-          <>
-            {id ? (
-              <Pressable
-                style={[styles.deleteBtn, uploading && styles.disabled]}
-                onPress={handleDelete}
-                disabled={uploading}
-              >
-                {uploading ? (
-                  <ActivityIndicator color="#fff" />
-                ) : (
-                  <Text style={styles.primaryText}>Borrar</Text>
-                )}
-              </Pressable>
+              <Text style={styles.label}>Titulo</Text>
+              <TextInput
+                style={styles.input}
+                value={docTitle}
+                onChangeText={setDocTitle}
+                placeholder="Ej. Tarea"
+              />
+
+              {categories.length > 0 && (
+                <>
+                  <Text style={styles.label}>Categoria</Text>
+                  <ScrollView
+                    horizontal
+                    contentContainerStyle={styles.chipsRow}
+                  >
+                    {categories.map((category) => (
+                      <Pressable
+                        key={category.id}
+                        style={[styles.chip, selectedCategory === category.id && styles.chipSelected]}
+                        onPress={() => setSelectedCategory(category.id)}
+                      >
+                        <Text style={styles.chipText}>{category.name}</Text>
+                      </Pressable>
+                    ))}
+                  </ScrollView>
+                </>
+              )}
+
+              <Text style={styles.label}>Texto extraido</Text>
+              <TextInput
+                style={styles.textArea}
+                multiline
+                value={extractedText}
+                onChangeText={setExtractedText}
+                placeholder="Ej. Dorime"
+              />
+            </>
+        </ScrollView>
+      ) : (
+        <View style={styles.viewBox}>
+          <Text style={styles.viewTitle}>{docTitle}</Text>
+          <Pressable
+            style={[styles.primary, { paddingHorizontal: 28 }]}
+            onPress={handleOpenServerPdf}
+            disabled={busy}
+          >
+            {!busy ? (
+              <Text style={styles.primaryText}>Abrir</Text>
             ) : null}
-          </>
+          </Pressable>
+        </View>
+      )}
+
+      <View style={styles.actions}>
+        {isScanMode && (
+          <Pressable
+            style={[styles.primary, (busy || !extractedText.trim()) && styles.disabled]}
+            onPress={handleGenerateAndUploadPdf}
+            disabled={busy || !extractedText.trim()}
+          >
+            {!busy ? (
+              <Text style={styles.primaryText}>Generar PDF</Text>
+            ) : null}
+          </Pressable>
         )}
+
         <Pressable
-              style={styles.secondary}
-              onPress={() => navigation.goBack()}
-              disabled={uploading}
-            >
-              <Text style={styles.secondaryText}>Volver</Text>
-            </Pressable>
+          style={styles.secondary}
+          onPress={() => navigation.goBack()}
+        >
+          <Text style={styles.secondaryText}>Volver</Text>
+        </Pressable>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#000' },
-  header: {
-    paddingTop: 48,
-    paddingBottom: 12,
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.6)',
+  container: { flex: 1 },
+  scroll: { flex: 1 },
+  scrollContent: { padding: 16, gap: 12 },
+  previewImage: { width: '100%', height: 380, borderRadius: 12, backgroundColor: '#000' },
+  label: { fontSize: 13, fontWeight: '600' },
+  input: {
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 11,
+    fontSize: 15,
+    borderWidth: 1,
+    borderColor: '#334155',
   },
-  image: { flex: 1 },
+  chipsRow: { gap: 8, paddingVertical: 4 },
+  chip: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#334155',
+  },
+  chipSelected: { backgroundColor: '#2563eb', borderColor: '#3b82f6' },
+  chipText: { fontSize: 13, fontWeight: '600' },
+  textArea: {
+    borderRadius: 12,
+    padding: 14,
+    fontSize: 15,
+    lineHeight: 22,
+    minHeight: 220,
+    textAlignVertical: 'top',
+    borderWidth: 1,
+    borderColor: '#334155',
+  },
+  viewBox: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 16,
+    padding: 24,
+  },
+  viewTitle: { color: '#fff', fontSize: 18, fontWeight: '700', textAlign: 'center' },
   actions: {
-    position: 'absolute',
-    bottom: 48,
-    left: 24,
-    right: 24,
-    gap: 12,
+    paddingHorizontal: 24,
+    paddingBottom: 38,
+    paddingTop: 8,
+    gap: 10,
   },
   primary: {
     backgroundColor: '#2563eb',
-    paddingVertical: 14,
-    borderRadius: 28,
-    alignItems: 'center',
-  },
-  deleteBtn: {
-    backgroundColor: '#dc2626',
     paddingVertical: 14,
     borderRadius: 28,
     alignItems: 'center',
@@ -135,6 +235,6 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     alignItems: 'center',
   },
-  secondaryText: { fontSize: 16, fontWeight: '700', color: '#000' },
+  secondaryText: { fontSize: 16, fontWeight: '700', color: '#0f172a' },
   disabled: { opacity: 0.6 },
 });

@@ -1,126 +1,143 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback, useState } from 'react';
-import { FlatList, Image, Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native';
 
 import { useTheme } from '../../theme/ThemeContext';
-import { formatDate } from '../../data/data';
-import { loadImage, getImageUrl } from '../../api/api';
+import { loadDocuments } from '../../api/api';
 
-export default function HomeScreen({ navigation }) {
-  const { theme } = useTheme();
-  const [photos, setPhotos] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+export default function HomeScreen({ token, navigation }) {
+    const { theme } = useTheme();
+    const [documents, setDocuments] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
 
-  // Refresca la pestana actual
-  useFocusEffect(
-    useCallback(() => {
-      loadPhotos();
-    }, [])
-  );
+    // Refresca la pestania actual
+    useFocusEffect(
+        useCallback(() => {
+            getDocs();
+        }, [token])
+    );
 
-  const loadPhotos = async (isRefresh = false) => {
-    if (isRefresh) {
-      setRefreshing(true);
-    } else {
-      setLoading(true);
-    }
-    setErrorMessage('');
+    const getDocs = async (isRefresh = false) => {
+        if (!token) return;
+        isRefresh ? setRefreshing(true) : setLoading(true);
+        setErrorMessage('');
 
-    try {
-        const data = await loadImage();
-        setPhotos(Array.isArray(data) ? data : []);
-    } catch (error) {
-        setErrorMessage(
-            error.message === 'Error del servidor'
-              ? 'Error del servidor'
-              : 'No se pudo conectar. Intenta de nuevo.'
-          );
-    }
-    setLoading(false);
-    setRefreshing(false);
-  };
-  
-  const openFullScreen = (item) => {
-    const imageUrl = getImageUrl(item);
-    if (!imageUrl) return;
-  
-    navigation.navigate('Photo', {
-        screen: 'Home',
-        uri: imageUrl,
-        mode: 'view',
-        id: item.id,
-    });
-  };
+        try {
+            const list = await loadDocuments(token);
+            setDocuments(list);
+        } catch (error) {
+            setErrorMessage(
+                error.message === 'Error del servidor'
+                ? 'Error del servidor'
+                : 'No se pudo conectar. Intenta de nuevo.'
+            );
+        }
+        setLoading(false);
+        setRefreshing(false);
+    };
+    
+    const openFullScreen = (item) => {
+        navigation.navigate('PdfViewer', {
+            screen: 'Home',
+            mode: 'view',
+            id: item.id,
+            title: item.title,
+            category_detail: item.category_detail,
+        });
+    };
 
-  return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
-      {loading && photos.length === 0 ? (
-        <View style={styles.center}>
-          <Text style={styles.text}>Cargando documentos...</Text>
-        </View>
-      ) : errorMessage ? (
-        <View style={styles.center}>
-          <Text style={styles.errorText}>{errorMessage}</Text>
-        </View>
-      ) : (
-        <FlatList
-          data={photos}
-          keyExtractor={(item) => String(item.id)}
-          contentContainerStyle={styles.list}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={() => loadPhotos(true)} />
-          }
-          renderItem={({ item }) => (
-            <Pressable
-              style={[
-                styles.card,
-                { backgroundColor: theme.surface, borderColor: theme.border },
-              ]}
-              onPress={() => openFullScreen(item)}
-            >
-                <Image
-                    source={{ uri: getImageUrl(item) }}
-                    style={styles.thumbnail}
-                />
-                <View style={styles.cardInfo}>
-                    <Text style={[styles.cardTitle, { color: theme.text }]}>
-                        Foto #{item.id}
-                    </Text>
-                    <Text style={styles.cardDate}>
-                        {formatDate(item.created_at)}
-                    </Text>
+    return (
+        <View style={[styles.container, { backgroundColor: theme.background }]}>
+            {loading ? (
+                <View style={styles.center}>
+                <Text style={styles.text}>Cargando...</Text>
                 </View>
-            </Pressable>
-          )}
-          ListEmptyComponent={
-            <View>
-              <Text style={[styles.text]}>
-                Todavía no hay fotos escaneadas.
-              </Text>
-            </View>
-          }
-        />
-      )}
-    </View>
-  );
+            ) : errorMessage ? (
+                <View style={styles.center}>
+                <Text style={styles.errorText}>{errorMessage}</Text>
+                </View>
+            ) : (
+                <FlatList
+                    data={documents}
+                    keyExtractor={(item) => String(item.id)}
+                    contentContainerStyle={styles.gridContent}
+                    columnWrapperStyle={styles.columnWrapper}
+                    numColumns={3}
+                    refreshControl={
+                        <RefreshControl refreshing={refreshing} onRefresh={() => getDocs(true)} />
+                    }
+                    renderItem={({ item }) => (
+                        <View style={styles.gridItem}>
+                            <Text
+                                style={styles.categoryLabel}
+                                numberOfLines={1}
+                            >
+                                {item.category_detail?.name || 'Sin categoria'}
+                            </Text>
+                            
+                            <View style={styles.docSheet}>
+                                <View style={styles.docLine} />
+                                <View style={styles.docLine} />
+                                <View style={styles.docLine} />
+                                <View style={styles.docLine} />
+                                <View style={styles.docLine} />
+                                <View style={styles.docLine} />
+                            </View>
+
+                            <Text style={[styles.titleLabel, { color: theme.text }]} numberOfLines={1}>
+                                {item.title}
+                            </Text>
+
+                            <Pressable
+                                style={({ pressed }) => [styles.openButton, pressed && styles.openButtonPressed]}
+                                onPress={() => openFullScreen(item)}
+                            >
+                                <Text style={styles.openButtonText}>Abrir</Text>
+                            </Pressable>
+                        </View>
+                    )}
+                    ListEmptyComponent={
+                        <View>
+                            <Text style={[styles.text]}>
+                                No hay documentos escaneados.
+                            </Text>
+                        </View>
+                    }
+                />
+            )}
+        </View>
+    );
 }
 
 const styles = StyleSheet.create({
     container: { flex: 1 },
+    gridItem: { width: '31%' },
+    gridContent: { paddingHorizontal: 12, paddingTop: 14, paddingBottom: 100 },
+    columnWrapper: { justifyContent: 'flex-start', gap: 12, marginBottom: 22 },
     center: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 },
     text: { fontSize: 17, fontWeight: '600', textAlign: 'center' },
-    list: { padding: 12, paddingBottom: 90, gap: 10 },
-    card: {
-        flexDirection: 'row',
-        borderRadius: 12,
-        borderWidth: 1,
-        overflow: 'hidden',
-        alignItems: 'center'
+    openButton: {
+        backgroundColor: '#000000',
+        borderRadius: 20,
+        paddingVertical: 6,
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '100%',
     },
-    thumbnail: { width: 90, height: 90, backgroundColor: '#cbd5e1' },
-    cardInfo: { flex: 1, padding: 12, gap: 4 },
-    cardTitle: { fontSize: 16, fontWeight: '700' },
-    cardDate: { fontSize: 13, color: '#64748b' },
+    openButtonText: { color: '#ffffff', fontSize: 12, fontWeight: '600' },
+    docSheet: {
+        width: '100%',
+        aspectRatio: 0.78,
+        backgroundColor: '#ffffff',
+        borderRadius: 4,
+        borderWidth: 1,
+        borderColor: '#e2e8f0',
+        padding: 7,
+        justifyContent: 'space-between',
+        elevation: 2,
+    },
+    docLine: { height: 2.5, backgroundColor: '#cbd5e1', borderRadius: 1, width: '100%' },
+    titleLabel: { fontSize: 13, fontWeight: '600', marginBottom: 6 },
 });

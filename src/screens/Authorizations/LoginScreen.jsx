@@ -17,22 +17,22 @@ export default function LoginScreen({ onLogin }) {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  // react-hook-form maneja los valores y la validación
-  const { control, handleSubmit, formState: { errors } } = useForm({
-    defaultValues: { email: '', password: '' },
+   // react-hook-form maneja los valores y la validación
+   const { control, handleSubmit, formState: { errors } } = useForm({
+    defaultValues: { username: '', password: '' },
   });
 
   // Solo se ejecuta si los dos campos pasaron la validación
-  async function onSubmit({ email, password }) {
+  async function onSubmit({ username, password }) {
     setLoading(true);
     setErrorMessage('');
     try {
-      const token = await login(email, password);
+      const token = await login(username, password);
       await onLogin(token); // App guarda el token y cambia de pantalla
     } catch (error) {
       setErrorMessage(
-        error.message === 'Correo o contraseña incorrectos.' || 'Enter a valid email address.'
-          ? 'Correo o contraseña incorrectos'
+        error.message === 'Usuario o contraseña incorrectos.' || 'Enter a valid username.'
+          ? 'Usuario o contraseña incorrectos'
           : 'No se pudo conectar. Intenta de nuevo.'
       );
       setLoading(false);
@@ -51,12 +51,12 @@ export default function LoginScreen({ onLogin }) {
 
         <Controller
           control={control}
-          name="email"
-          rules={{ required: 'El correo es obligatorio' }}
+          name="username"
+          rules={{ required: 'El username es obligatorio' }}
           render={({ field: { onChange, onBlur, value } }) => (
             <TextInput
               style={styles.input}
-              placeholder="Correo"
+              placeholder="Usuario"
               autoCapitalize="none"
               autoCorrect={false}
               keyboardType="default"
@@ -66,8 +66,7 @@ export default function LoginScreen({ onLogin }) {
             />
           )}
         />
-        {errors.email && <Text style={styles.error}>{errors.email.message}</Text>}
-
+        {errors.username && <Text style={styles.error}>{errors.username.message}</Text>}
         <Controller
           control={control}
           name="password"

@@ -14,6 +14,7 @@ import ScanScreen from './Tabs/ScanScreens/ScanScreen';
 import CategoriesScreen from './Tabs/CategoriesScreen';
 import ShareScreen from './Tabs/ShareScreen';
 import PhotoScreen from './Tabs/ScanScreens/photo';
+import PdfViewerScreen from './Tabs/ScanScreens/PdfViewerScreen';
 
 import Tabs from '../components/Tabs';
 
@@ -27,13 +28,18 @@ const screens = [
 ];
 var logout = null;
 
-function MainStack() {
+function MainStack({ token }) {
   return (
     <Stack.Navigator>
       <Stack.Screen name="Tabs" options={{ headerShown: false }}>
-        {(props) => <Tabs {...props} screens={screens} onAction={logout} />}
+        {(props) => <Tabs {...props} token={token} screens={screens} onAction={logout} />}
       </Stack.Screen>
-      <Stack.Screen name="Photo" component={PhotoScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Photo" options={{ headerShown: false }}>
+        {(props) => <PhotoScreen {...props} token={token} />}
+      </Stack.Screen>
+      <Stack.Screen name="PdfViewer" options={{ headerShown: false }}>
+        {(props) => <PdfViewerScreen {...props} token={token} />}
+      </Stack.Screen>
     </Stack.Navigator>
   );
 }
@@ -69,7 +75,7 @@ export default function TabStackNavigator({ token, onLogout }) {
           <SafeAreaProvider>
             <SafeAreaView style={{ flex: 1 }}>
               <StatusBar style="auto"/>
-              <MainStack />
+              <MainStack token={token} />
             </SafeAreaView>
           </SafeAreaProvider>
         </GestureHandlerRootView>

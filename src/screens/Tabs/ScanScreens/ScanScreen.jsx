@@ -4,7 +4,7 @@ import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, View, Linking } 
 import { saveCopyToDocuments } from '../../../data/storage';
 
 export default function ScanScreen({ navigation }) {
-  const [facing, setFacing] = useState('back');
+  const [flash, setFlash] = useState('off');
   const [ready, setReady] = useState(false);
   const [busy, setBusy] = useState(false);
   const [permission, requestPermission] = useCameraPermissions();
@@ -15,6 +15,9 @@ export default function ScanScreen({ navigation }) {
   const toggleFacing = () => {
     setReady(false);
     setFacing((current) => (current === 'back' ? 'front' : 'back'));
+  };
+  const toggleFlash = () => {
+    setFlash((current) => (current === 'off' ? 'on' : current === 'on' ? 'off' : current === 'off'));
   };
   const takePhoto = async () => {
     if (!ready || busy || !cameraRef.current) return;
@@ -49,7 +52,7 @@ export default function ScanScreen({ navigation }) {
       <CameraView
         ref={cameraRef}
         style={StyleSheet.absoluteFill}
-        facing={facing}
+        flash={flash}
         onCameraReady={() => setReady(true)}
       />
       <View style={styles.controls}>
@@ -63,8 +66,8 @@ export default function ScanScreen({ navigation }) {
           {busy ? <ActivityIndicator color="#000" /> : <View style={styles.shutterInner} />}
         </Pressable>
         <View style={styles.side}>
-          <Pressable style={styles.flip} onPress={toggleFacing} accessibilityLabel="Cambiar cámara">
-            <Text style={styles.flipText}>Voltear</Text>
+          <Pressable style={styles.flip} onPress={toggleFlash} accessibilityLabel="Cambiar flash">
+            <Text style={styles.flipText}>{flash === 'on' ? 'Flash' : 'Sin flash'}</Text>
           </Pressable>
         </View>
       </View>

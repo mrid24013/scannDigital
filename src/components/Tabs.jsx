@@ -8,7 +8,7 @@ function tabIcon(name) {
     return ({ color, size }) => <Ionicons name={name} size={size} color={color} />;
 }
 
-export default function Tabs({ screens = [], onAction }) {
+export default function Tabs({ token, screens = [], onAction }) {
     const getOptions = (screen) => ({
         title: screen.name,
         tabBarLabel: screen.name,
@@ -42,9 +42,10 @@ export default function Tabs({ screens = [], onAction }) {
               <Tab.Screen
                 key={screen.name}
                 name={screen.name}
-                component={ScreenComponent}
                 options={getOptions(screen)}
-              />
+              >
+                {(props) => <ScreenComponent {...props} token={token} />}
+              </Tab.Screen>
             );
           })}
         </Tab.Navigator>

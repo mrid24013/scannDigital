@@ -20,19 +20,19 @@ export default function SignUpScreen({ onLogin }) {
 
   // react-hook-form maneja los valores y la validación
   const { control, handleSubmit, formState: { errors } } = useForm({
-    defaultValues: { first_name: '',last_name: '', email: '', phone: '', password: '', password_confirm: ''},
+    defaultValues: { username: '', email: '', password: ''},
   });
 
   // Solo se ejecuta si los dos campos pasaron la validación
-  async function onSubmit({ first_name,last_name, email, phone, password, password_confirm }) {
+  async function onSubmit({ username, email, password }) {
     setLoading(true);
     setErrorMessage('');
     try {
-      const token = await signup(first_name, last_name, email, phone, password, password_confirm);
+      const token = await signup( username, email, password );
       await onLogin(token); // App guarda el token y cambia de pantalla
     } catch (error) {
       setErrorMessage(
-        error.message === 'account with this email already exists.'
+        error.message === 'account with this username already exists.'
           ? 'Correo ya esta en uso.'
           : 'No se pudo conectar. Intenta de nuevo.'
       );
@@ -52,12 +52,12 @@ export default function SignUpScreen({ onLogin }) {
 
         <Controller
           control={control}
-          name="first_name"
-          rules={{ required: 'El nombre es obligatorio' }}
+          name="username"
+          rules={{ required: 'El usuario es obligatorio' }}
           render={({ field: { onChange, onBlur, value } }) => (
             <TextInput
               style={styles.input}
-              placeholder="Nombre"
+              placeholder="Usuario"
               autoCapitalize="none"
               autoCorrect={false}
               keyboardType="default"
@@ -67,26 +67,7 @@ export default function SignUpScreen({ onLogin }) {
             />
           )}
         />
-        {errors.first_name && <Text style={styles.error}>{errors.first_name.message}</Text>}
-
-        <Controller
-          control={control}
-          name="last_name"
-          rules={{ required: 'El apellido es obligatorio' }}
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              style={styles.input}
-              placeholder="Apellido"
-              autoCapitalize="none"
-              autoCorrect={false}
-              keyboardType="default"
-              onChangeText={onChange}
-              onBlur={onBlur}
-              value={value}
-            />
-          )}
-        />
-        {errors.last_name && <Text style={styles.error}>{errors.last_name.message}</Text>}
+        {errors.username && <Text style={styles.error}>{errors.username.message}</Text>}
 
         <Controller
           control={control}
@@ -109,25 +90,6 @@ export default function SignUpScreen({ onLogin }) {
 
         <Controller
           control={control}
-          name="phone"
-          rules={{ required: 'El telefono es obligatorio' }}
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              style={styles.input}
-              placeholder="Telefono"
-              autoCapitalize="none"
-              autoCorrect={false}
-              keyboardType="default"
-              onChangeText={onChange}
-              onBlur={onBlur}
-              value={value}
-            />
-          )}
-        />
-        {errors.phone && <Text style={styles.error}>{errors.phone.message}</Text>}
-
-        <Controller
-          control={control}
           name="password"
           rules={{ required: 'La contraseña es obligatoria' }}
           render={({ field: { onChange, onBlur, value } }) => (
@@ -143,24 +105,6 @@ export default function SignUpScreen({ onLogin }) {
           )}
         />
         {errors.password && <Text style={styles.error}>{errors.password.message}</Text>}
-
-        <Controller
-          control={control}
-          name="password_confirm"
-          rules={{ required: 'La contraseña es obligatoria' }}
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              style={styles.input}
-              placeholder="Confirma Contraseña"
-              autoCapitalize="none"
-              secureTextEntry
-              onChangeText={onChange}
-              onBlur={onBlur}
-              value={value}
-            />
-          )}
-        />
-        {errors.password_confirm && <Text style={styles.error}>{errors.password_confirm.message}</Text>}
 
         {errorMessage !== '' && <Text style={styles.error}>{errorMessage}</Text>}
 
